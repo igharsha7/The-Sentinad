@@ -13,11 +13,14 @@ import WalletConnect from "@/components/WalletConnect";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Shield,
   ArrowLeft,
   Wallet,
   AlertTriangle,
   Activity,
+  Play,
+  Square,
+  FlaskConical,
+  Zap,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -31,6 +34,11 @@ export default function Dashboard() {
     availableTokens,
     activeTokenIds,
     selectTokens,
+    isRunning,
+    simulationMode,
+    startAgent,
+    stopAgent,
+    toggleSimulation,
   } = useSocket();
 
   const {
@@ -57,12 +65,51 @@ export default function Dashboard() {
               <span className="text-sm hidden sm:inline">Back</span>
             </Link>
             <div className="w-px h-6 bg-border" />
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-monad to-monad-dim flex items-center justify-center">
-                <Shield className="w-3.5 h-3.5 text-background" />
-              </div>
-              <span className="font-semibold tracking-tight">The Sentinad</span>
-            </div>
+            <Link href="/" className="group">
+              <span className="text-lg font-display italic tracking-tight">
+                <span className="text-foreground group-hover:text-monad-bright transition-colors">Senti</span>
+                <span className="text-monad">nad</span>
+              </span>
+            </Link>
+          </div>
+
+          {/* Center: Agent Controls */}
+          <div className="flex items-center gap-3">
+            {/* Simulation Mode Toggle */}
+            <button
+              onClick={toggleSimulation}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                simulationMode
+                  ? "bg-accent-amber/10 text-accent-amber border border-accent-amber/30"
+                  : "bg-accent-green/10 text-accent-green border border-accent-green/30"
+              }`}
+            >
+              <FlaskConical className="w-3.5 h-3.5" />
+              {simulationMode ? "Simulation" : "Live Mode"}
+            </button>
+
+            {/* Start/Stop Button */}
+            <Button
+              size="sm"
+              onClick={isRunning ? stopAgent : startAgent}
+              className={`min-w-[100px] ${
+                isRunning
+                  ? "bg-accent-red hover:bg-accent-red/80"
+                  : "bg-accent-green hover:bg-accent-green/80"
+              } text-background font-medium`}
+            >
+              {isRunning ? (
+                <>
+                  <Square className="w-3.5 h-3.5 mr-1.5" />
+                  Stop
+                </>
+              ) : (
+                <>
+                  <Play className="w-3.5 h-3.5 mr-1.5" />
+                  Start
+                </>
+              )}
+            </Button>
           </div>
 
           <div className="flex items-center gap-4">
@@ -113,6 +160,32 @@ export default function Dashboard() {
       </header>
 
       <main className="flex-1 max-w-[1400px] mx-auto w-full px-6 py-6 space-y-6">
+        {/* Simulation Mode Info Banner */}
+        {simulationMode && isConnected && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3 rounded-xl bg-accent-amber/10 border border-accent-amber/20 flex items-center gap-3"
+          >
+            <FlaskConical className="w-4 h-4 text-accent-amber shrink-0" />
+            <p className="text-sm text-foreground flex-1">
+              <span className="font-medium">Simulation Mode Active</span>
+              <span className="text-muted ml-2">
+                No real transactions will be executed. Your 10 MON is safe.
+              </span>
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-accent-green/30 text-accent-green hover:bg-accent-green/10 shrink-0 text-xs"
+              onClick={toggleSimulation}
+            >
+              <Zap className="w-3 h-3 mr-1" />
+              Go Live
+            </Button>
+          </motion.div>
+        )}
+
         {/* Warning Banner when not connected */}
         {!isConnected && (
           <motion.div
@@ -174,8 +247,13 @@ export default function Dashboard() {
       <footer className="border-t border-border px-6 py-4 mt-auto">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
+            <span className="font-display italic text-sm">
+              <span className="text-foreground">Senti</span>
+              <span className="text-monad">nad</span>
+            </span>
+            <span className="text-muted-2">·</span>
             <span className="text-xs text-muted">
-              Monad Blitz Hyderabad · 2026
+              Monad Blitz Hyderabad 2026
             </span>
             <div className="flex items-center gap-2 text-xs text-muted">
               <Activity className="w-3 h-3" />

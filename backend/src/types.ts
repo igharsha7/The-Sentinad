@@ -91,8 +91,12 @@ export interface ServerToClientEvents {
   trade: (result: TradeResult) => void;
   availableTokens: (tokens: TokenPair[]) => void;
   activeTokens: (pairIds: string[]) => void;
+  agentStatus: (data: { isRunning: boolean; simulationMode: boolean }) => void;
 }
 
 export interface ClientToServerEvents {
   selectTokens: (pairIds: string[]) => void;
+  startAgent: () => void;
+  stopAgent: () => void;
+  setSimulationMode: (enabled: boolean) => void;
 }

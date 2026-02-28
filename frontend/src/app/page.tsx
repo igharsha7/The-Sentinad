@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
+import { Marquee } from "@/components/ui/marquee";
+import { CountUp } from "@/components/ui/count-up";
 import {
   ArrowRight,
   Shield,
@@ -12,6 +14,9 @@ import {
   Brain,
   ChevronDown,
   ExternalLink,
+  Activity,
+  Eye,
+  Sparkles,
 } from "lucide-react";
 
 // Animated gradient orbs
@@ -184,17 +189,19 @@ function TerminalPreview() {
   );
 }
 
-// Feature card
+// Feature card with GlowingEffect
 function FeatureCard({
   icon: Icon,
   title,
   description,
   delay,
+  iconColor = "text-monad",
 }: {
   icon: React.ElementType;
   title: string;
   description: string;
   delay: number;
+  iconColor?: string;
 }) {
   return (
     <motion.div
@@ -202,59 +209,58 @@ function FeatureCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      className="group relative p-6 rounded-2xl bg-surface/50 border border-border hover:border-monad/30 transition-all duration-300"
+      className="relative"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-monad/5 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300" />
-      <div className="relative">
-        <div className="w-10 h-10 rounded-xl bg-monad/10 flex items-center justify-center mb-4 group-hover:bg-monad/20 transition-colors">
-          <Icon className="w-5 h-5 text-monad" />
+      <div className="relative rounded-2xl border border-border bg-surface/50 p-1">
+        <GlowingEffect
+          spread={40}
+          glow={true}
+          proximity={64}
+          borderWidth={2}
+          disabled={false}
+        />
+        <div className="relative p-6 bg-surface rounded-xl">
+          <div
+            className={`w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center mb-4`}
+          >
+            <Icon className={`w-5 h-5 ${iconColor}`} />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
+          <p className="text-muted text-sm leading-relaxed">{description}</p>
         </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
-        <p className="text-muted text-sm leading-relaxed">{description}</p>
       </div>
     </motion.div>
   );
 }
 
-// Stats counter
+// Simple stat with CountUp animation
 function AnimatedStat({
   value,
   label,
   suffix = "",
+  delay = 0,
 }: {
   value: number;
   label: string;
   suffix?: string;
+  delay?: number;
 }) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const increment = value / steps;
-    let current = 0;
-
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= value) {
-        setCount(value);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, duration / steps);
-
-    return () => clearInterval(timer);
-  }, [value]);
-
   return (
-    <div className="text-center">
-      <div className="text-4xl md:text-5xl font-display italic text-foreground mb-2">
-        {count}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay }}
+      className="text-center"
+    >
+      <div className="text-5xl md:text-6xl lg:text-7xl font-display italic text-foreground mb-3">
+        <CountUp to={value} duration={2.5} delay={delay} />
         {suffix}
       </div>
-      <div className="text-sm text-muted uppercase tracking-wider">{label}</div>
-    </div>
+      <div className="text-sm text-muted uppercase tracking-widest font-mono">
+        {label}
+      </div>
+    </motion.div>
   );
 }
 
@@ -264,37 +270,73 @@ export default function LandingPage() {
       <GradientOrbs />
       <GridPattern />
 
+      {/* Scrolling Marquee Bar */}
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-monad text-background py-2 overflow-hidden">
+        <Marquee speed={25} className="text-xs font-mono tracking-wider">
+          <span className="px-8 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-background animate-pulse" />
+            // live on monad testnet
+          </span>
+          <span className="px-8 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-background animate-pulse" />
+            ai-powered contract auditing
+          </span>
+          <span className="px-8 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-background animate-pulse" />
+            flash arbitrage execution
+          </span>
+          <span className="px-8 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-background animate-pulse" />
+            kuru ↔ bean price monitoring
+          </span>
+          <span className="px-8 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-background animate-pulse" />
+            sub-second finality
+          </span>
+        </Marquee>
+      </div>
+
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/60 border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-monad to-monad-dim flex items-center justify-center">
-              <Shield className="w-4 h-4 text-background" />
+      <nav className="fixed top-8 left-0 right-0 z-50">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="flex items-center justify-between px-6 py-3 rounded-2xl backdrop-blur-xl bg-surface/80 border border-border">
+            {/* Logo */}
+            <Link href="/" className="group">
+              <span className="text-xl font-display italic tracking-tight">
+                <span className="text-foreground group-hover:text-monad-bright transition-colors">Senti</span>
+                <span className="text-monad">nad</span>
+              </span>
+            </Link>
+
+            {/* Center Nav Links */}
+            <div className="hidden md:flex items-center gap-1 bg-surface-2 rounded-xl p-1">
+              <Link
+                href="#how-it-works"
+                className="text-sm text-muted hover:text-foreground hover:bg-surface-3 px-4 py-2 rounded-lg transition-all"
+              >
+                How It Works
+              </Link>
+              <Link
+                href="https://monad.xyz"
+                target="_blank"
+                className="text-sm text-muted hover:text-foreground hover:bg-surface-3 px-4 py-2 rounded-lg transition-all"
+              >
+                Monad
+              </Link>
+              <Link
+                href="https://github.com"
+                target="_blank"
+                className="text-sm text-muted hover:text-foreground hover:bg-surface-3 px-4 py-2 rounded-lg transition-all"
+              >
+                GitHub
+              </Link>
             </div>
-            <span className="text-lg font-semibold tracking-tight">
-              The Sentinad
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="https://monad.xyz"
-              target="_blank"
-              className="text-sm text-muted hover:text-foreground transition-colors hidden sm:block"
-            >
-              Monad
-            </Link>
-            <Link
-              href="https://github.com"
-              target="_blank"
-              className="text-sm text-muted hover:text-foreground transition-colors hidden sm:block"
-            >
-              GitHub
-            </Link>
+
+            {/* CTA */}
             <Link href="/dashboard">
               <Button
-                variant="outline"
                 size="sm"
-                className="border-monad/30 text-monad hover:bg-monad/10 hover:border-monad"
+                className="bg-monad hover:bg-monad-bright text-background font-medium"
               >
                 Launch App
                 <ArrowRight className="w-4 h-4 ml-1" />
@@ -305,86 +347,92 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-8"
-          >
-            <Badge
-              variant="outline"
-              className="mb-6 border-monad/30 text-monad bg-monad/5 px-4 py-1.5"
+      <section className="relative pt-40 pb-20 px-8">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left: Content */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              <span className="w-2 h-2 rounded-full bg-accent-green mr-2 animate-pulse" />
-              Live on Monad Testnet
-            </Badge>
-          </motion.div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-border mb-6">
+                <Activity className="w-3.5 h-3.5 text-accent-green" />
+                <span className="text-xs font-mono text-muted">
+                  Monitoring 2 DEXs
+                </span>
+              </div>
+            </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-center mb-6"
-          >
-            <span className="block text-5xl md:text-7xl lg:text-8xl font-display italic text-foreground leading-[1.1] tracking-tight">
-              Think Before Link
-            </span>
-            <span className="block text-5xl md:text-7xl lg:text-8xl font-display italic text-monad leading-[1.1] tracking-tight">
-              Arbitrage
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-center text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed"
-          >
-            AI-powered arbitrage that audits contracts before execution. The
-            Sentinad sees the price gap, reads the code, and only strikes when
-            both the math and the logic check out.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
-          >
-            <Link href="/dashboard">
-              <Button
-                size="lg"
-                className="bg-monad hover:bg-monad-bright text-background font-semibold px-8 h-12 text-base"
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="mb-6"
+            >
+              <span className="block text-4xl md:text-6xl lg:text-7xl font-display italic text-foreground leading-[1.1] tracking-tight">
+                Think Before Link
+              </span>
+              <span
+                className="block text-4xl md:text-6xl lg:text-7xl font-display italic leading-[1.1] tracking-tight text-outline-glow text-glow-animate"
+                data-text="Arbitrage"
               >
-                Launch Dashboard
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-border hover:border-monad/30 h-12 px-8"
-              onClick={() =>
-                document
-                  .getElementById("how-it-works")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-            >
-              How It Works
-              <ChevronDown className="w-4 h-4 ml-2" />
-            </Button>
-          </motion.div>
+                Arbitrage
+              </span>
+            </motion.h1>
 
-          {/* Terminal Preview */}
-          <TerminalPreview />
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg md:text-xl text-muted max-w-lg mb-10 leading-relaxed"
+            >
+              AI-powered arbitrage that audits contracts before execution. The
+              Sentinad sees the price gap, reads the code, and only strikes when
+              both the math and the logic check out.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-start gap-4"
+            >
+              <Link href="/dashboard">
+                <Button
+                  size="lg"
+                  className="bg-monad hover:bg-monad-bright text-background font-semibold px-8 h-12 text-base"
+                >
+                  Launch Dashboard
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-border hover:border-monad/30 h-12 px-8"
+                onClick={() =>
+                  document
+                    .getElementById("how-it-works")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                How It Works
+                <ChevronDown className="w-4 h-4 ml-2" />
+              </Button>
+            </motion.div>
+          </div>
+
+          {/* Right: Terminal Preview */}
+          <div className="lg:pl-8">
+            <TerminalPreview />
+          </div>
         </div>
       </section>
 
       {/* The Problem Section */}
-      <section className="relative py-24 px-6 border-t border-border">
-        <div className="max-w-4xl mx-auto">
+      <section className="relative py-24 px-8 border-t border-border">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -402,24 +450,37 @@ export default function LandingPage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="p-6 rounded-2xl bg-accent-red/5 border border-accent-red/20"
+              className="relative p-1 rounded-2xl border border-accent-red/20"
             >
-              <div className="text-accent-red text-sm font-mono mb-4">
-                // Traditional Bot
-              </div>
-              <div className="font-mono text-sm text-muted space-y-2">
-                <div>1. See price gap ✓</div>
-                <div>2. Execute swap immediately</div>
-                <div className="text-accent-red">
-                  3. Hit honeypot → funds locked
+              <div className="p-6 bg-accent-red/5 rounded-xl">
+                <div className="text-accent-red text-sm font-mono mb-4 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-accent-red" />
+                  // Traditional Bot
                 </div>
-                <div className="text-accent-red">4. Rug pulled. GG.</div>
+                <div className="font-mono text-sm text-muted space-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="text-muted-2">1.</span>
+                    <span>See price gap ✓</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-muted-2">2.</span>
+                    <span>Execute swap immediately</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-accent-red">
+                    <span className="text-accent-red/50">3.</span>
+                    <span>Hit honeypot → funds locked</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-accent-red">
+                    <span className="text-accent-red/50">4.</span>
+                    <span>Rug pulled. GG.</span>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
@@ -428,18 +489,31 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-6 rounded-2xl bg-accent-green/5 border border-accent-green/20"
+              className="relative p-1 rounded-2xl border border-accent-green/20"
             >
-              <div className="text-accent-green text-sm font-mono mb-4">
-                // The Sentinad
-              </div>
-              <div className="font-mono text-sm text-muted space-y-2">
-                <div>1. See price gap ✓</div>
-                <div>2. AI audits contract code</div>
-                <div className="text-accent-green">
-                  3. Verify no backdoors ✓
+              <div className="p-6 bg-accent-green/5 rounded-xl">
+                <div className="text-accent-green text-sm font-mono mb-4 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
+                  // The Sentinad
                 </div>
-                <div className="text-accent-green">4. Execute safely ✓</div>
+                <div className="font-mono text-sm text-muted space-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="text-muted-2">1.</span>
+                    <span>See price gap ✓</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-muted-2">2.</span>
+                    <span>AI audits contract code</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-accent-green">
+                    <span className="text-accent-green/50">3.</span>
+                    <span>Verify no backdoors ✓</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-accent-green">
+                    <span className="text-accent-green/50">4.</span>
+                    <span>Execute safely ✓</span>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -447,136 +521,298 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="relative py-24 px-6 border-t border-border">
-        <div className="max-w-6xl mx-auto">
+      <section id="how-it-works" className="relative py-24 px-8 border-t border-border">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-display italic text-foreground mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-border mb-6">
+              <Brain className="w-3.5 h-3.5 text-monad" />
+              <span className="text-xs font-mono text-muted">
+                MULTI-AGENT SYSTEM
+              </span>
+            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display italic text-foreground mb-4">
               How The Sentinad Works
             </h2>
-            <p className="text-muted max-w-xl mx-auto">
+            <p className="text-muted max-w-xl mx-auto text-lg">
               Four specialized agents working in concert, powered by Monad&apos;s
               sub-second finality.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             <FeatureCard
               icon={Zap}
               title="Scanner Agent"
-              description="Monitors Kuru and Bean DEX prices every 500ms. Detects arbitrage opportunities above 2% threshold."
+              description="Monitors Kuru and Bean DEX prices every 500ms. Detects arbitrage opportunities above 2% threshold with lightning speed."
               delay={0}
+              iconColor="text-accent-amber"
             />
             <FeatureCard
-              icon={Brain}
+              icon={Eye}
               title="Vibe Agent"
-              description="AI-powered security auditor. Analyzes contract bytecode for honeypots, rug pulls, and hidden fees."
+              description="AI-powered security auditor. Analyzes contract bytecode for honeypots, rug pulls, and hidden fees before any trade."
               delay={0.1}
+              iconColor="text-monad"
             />
             <FeatureCard
               icon={Shield}
               title="Executor Agent"
-              description="Flash loan arbitrage execution. Only triggers when Vibe Agent confirms contract safety."
+              description="Flash loan arbitrage execution. Only triggers when Vibe Agent confirms contract safety. No funds at risk."
               delay={0.2}
+              iconColor="text-accent-green"
             />
             <FeatureCard
-              icon={ArrowRight}
+              icon={Activity}
               title="Orchestrator"
-              description="Coordinates all agents via event-driven architecture. Real-time state machine management."
+              description="Coordinates all agents via event-driven architecture. Real-time state machine management and WebSocket updates."
               delay={0.3}
+              iconColor="text-accent-cyan"
             />
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="relative py-24 px-6 border-t border-border">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-3 gap-8">
-            <AnimatedStat value={142} label="Scans Run" />
-            <AnimatedStat value={7} label="Scams Dodged" />
-            <AnimatedStat value={340} label="Avg Execution" suffix="ms" />
-          </div>
-        </div>
-      </section>
-
-      {/* DEX Info */}
-      <section className="relative py-24 px-6 border-t border-border">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="relative py-24 px-8 border-t border-border">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-display italic text-foreground mb-6">
-              Powered by Monad
+            <h2 className="text-2xl md:text-3xl font-display italic text-foreground mb-4">
+              Agent Performance
             </h2>
-            <p className="text-muted text-lg mb-10 max-w-2xl mx-auto">
-              The Sentinad monitors price deltas between Kuru and Bean DEX on
-              Monad Testnet. Sub-second finality means the AI can think and
-              strike in the same loop.
+            <p className="text-muted text-sm max-w-md mx-auto">
+              Real-time metrics from The Sentinad on Monad Testnet
             </p>
+          </motion.div>
+          <div className="grid grid-cols-3 gap-8 md:gap-16">
+            <AnimatedStat value={142} label="Scans Run" delay={0} />
+            <AnimatedStat value={7} label="Scams Dodged" delay={0.1} />
+            <AnimatedStat value={340} label="Avg Execution" suffix="ms" delay={0.2} />
+          </div>
+        </div>
+      </section>
 
-            <div className="flex items-center justify-center gap-8 flex-wrap">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface border border-border">
-                <div className="w-3 h-3 rounded-full bg-monad" />
-                <span className="text-sm font-medium">Kuru DEX</span>
+      {/* DEX Info - Powered by Monad */}
+      <section className="relative py-24 px-8 border-t border-border overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-monad/10 rounded-full blur-[120px]" />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left: Visual */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="relative p-1 rounded-3xl border border-monad/20">
+                <GlowingEffect
+                  spread={60}
+                  glow={true}
+                  proximity={100}
+                  borderWidth={2}
+                  disabled={false}
+                />
+                <div className="relative p-8 bg-surface rounded-3xl">
+                  <div className="flex items-center justify-center gap-8 mb-8">
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-2xl bg-monad/10 border border-monad/30 flex items-center justify-center mb-3">
+                        <span className="text-2xl font-bold text-monad">K</span>
+                      </div>
+                      <span className="text-sm font-medium text-foreground">
+                        Kuru DEX
+                      </span>
+                      <span className="text-xs text-muted font-mono">
+                        $1.000
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2">
+                      <motion.div
+                        animate={{ x: [0, 8, 0] }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="text-monad"
+                      >
+                        <ArrowRight className="w-6 h-6" />
+                      </motion.div>
+                      <span className="text-xs font-mono text-accent-green">
+                        +3.2%
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-2xl bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center mb-3">
+                        <span className="text-2xl font-bold text-accent-cyan">
+                          B
+                        </span>
+                      </div>
+                      <span className="text-sm font-medium text-foreground">
+                        Bean DEX
+                      </span>
+                      <span className="text-xs text-muted font-mono">
+                        $1.032
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-center py-4 border-t border-border">
+                    <div className="text-xs font-mono text-muted mb-1">
+                      ARBITRAGE PROFIT
+                    </div>
+                    <div className="text-2xl font-display italic text-accent-green">
+                      0.84 WMON
+                    </div>
+                  </div>
+                </div>
               </div>
-              <span className="text-muted">↔</span>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface border border-border">
-                <div className="w-3 h-3 rounded-full bg-accent-cyan" />
-                <span className="text-sm font-medium">Bean DEX</span>
+            </motion.div>
+
+            {/* Right: Content */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="w-5 h-5 text-monad" />
+                <span className="text-sm font-mono text-monad">
+                  BUILT FOR SPEED
+                </span>
+              </div>
+
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-display italic text-foreground mb-4">
+                Powered by{" "}
+                <span className="text-monad text-glow-animate">Monad</span>
+              </h2>
+
+              <p className="text-muted text-lg mb-8 leading-relaxed">
+                The Sentinad monitors price deltas between Kuru and Bean DEX on
+                Monad Testnet. Sub-second finality means the AI can think and
+                strike in the same loop — no waiting, no missed opportunities.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-surface-2 border border-border">
+                  <div className="text-2xl font-display italic text-foreground mb-1">
+                    500ms
+                  </div>
+                  <div className="text-xs text-muted font-mono">
+                    SCAN INTERVAL
+                  </div>
+                </div>
+                <div className="p-4 rounded-xl bg-surface-2 border border-border">
+                  <div className="text-2xl font-display italic text-foreground mb-1">
+                    2%+
+                  </div>
+                  <div className="text-xs text-muted font-mono">
+                    ARB THRESHOLD
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative py-32 px-8 border-t border-border">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative"
+          >
+            <div className="relative p-1 rounded-3xl border border-monad/30 overflow-hidden">
+              <GlowingEffect
+                spread={80}
+                glow={true}
+                proximity={120}
+                borderWidth={3}
+                disabled={false}
+              />
+              {/* Background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-monad/20 via-transparent to-monad-dim/10" />
+
+              <div className="relative p-16 bg-surface/80 rounded-3xl text-center">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-monad/10 border border-monad/30 mb-6">
+                  <span className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
+                  <span className="text-xs font-mono text-monad">READY</span>
+                </div>
+
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display italic text-foreground mb-6">
+                  Ready to see it
+                  <br />
+                  <span className="text-monad">in action?</span>
+                </h2>
+
+                <p className="text-muted text-lg mb-10 max-w-lg mx-auto">
+                  Watch The Sentinad scan, audit, and execute in real-time.
+                  Built for Monad Blitz Hyderabad 2026.
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link href="/dashboard">
+                    <Button
+                      size="lg"
+                      className="bg-monad hover:bg-monad-bright text-background font-semibold px-12 h-14 text-base"
+                    >
+                      Launch Dashboard
+                      <ExternalLink className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                  <Link
+                    href="https://github.com"
+                    target="_blank"
+                  >
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-border hover:border-monad/30 h-14 px-8"
+                    >
+                      View on GitHub
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative py-24 px-6 border-t border-border">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="p-12 rounded-3xl bg-gradient-to-br from-monad/10 to-transparent border border-monad/20"
-          >
-            <h2 className="text-3xl md:text-4xl font-display italic text-foreground mb-4">
-              Ready to see it in action?
-            </h2>
-            <p className="text-muted mb-8 max-w-lg mx-auto">
-              Watch The Sentinad scan, audit, and execute in real-time. Built
-              for Monad Blitz Hyderabad 2026.
-            </p>
-            <Link href="/dashboard">
-              <Button
-                size="lg"
-                className="bg-monad hover:bg-monad-bright text-background font-semibold px-10 h-12"
-              >
-                Launch Dashboard
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="border-t border-border py-8 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm text-muted">
-            <Shield className="w-4 h-4 text-monad" />
-            <span>The Sentinad · Monad Blitz Hyderabad 2026</span>
+      <footer className="border-t border-border py-8 px-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-sm text-muted">
+            <span className="font-display italic text-base">
+              <span className="text-foreground">Senti</span>
+              <span className="text-monad">nad</span>
+            </span>
+            <span className="text-muted-2">·</span>
+            <span>Monad Blitz Hyderabad 2026</span>
           </div>
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-8 text-sm">
             <Link
               href="https://monad.xyz"
               target="_blank"
-              className="text-muted hover:text-foreground transition-colors"
+              className="text-muted hover:text-monad transition-colors"
             >
               Monad
             </Link>

@@ -66,6 +66,7 @@ orchestrator.on("stateChange", (data) => io.emit("stateChange", data));
 orchestrator.on("stats", (stats) => io.emit("stats", stats));
 orchestrator.on("roast", (event) => io.emit("roast", event));
 orchestrator.on("trade", (result) => io.emit("trade", result));
+orchestrator.on("agentStatus", (status) => io.emit("agentStatus", status));
 
 // ---- Socket.io Connection Handling ----
 io.on("connection", (socket) => {
@@ -76,6 +77,7 @@ io.on("connection", (socket) => {
   socket.emit("activeTokens", orchestrator.getActivePairIds());
   socket.emit("stats", orchestrator.getStats());
   socket.emit("stateChange", { from: orchestrator.getState(), to: orchestrator.getState() });
+  socket.emit("agentStatus", orchestrator.getAgentStatus());
 
   // Send event history for catch-up
   const history = orchestrator.getHistory();
@@ -89,6 +91,24 @@ io.on("connection", (socket) => {
     orchestrator.setActivePairs(pairIds);
     // Broadcast updated selection to all clients
     io.emit("activeTokens", orchestrator.getActivePairIds());
+  });
+
+  // Handle start agent from frontend
+  socket.on("startAgent", () => {
+    console.log(`[Socket] Agent start requested by ${socket.id}`);
+    orchestrator.start();
+  });
+
+  // Handle stop agent from frontend
+  socket.on("stopAgent", () => {
+    console.log(`[Socket] Agent stop requested by ${socket.id}`);
+    orchestrator.stop();
+  });
+
+  // Handle simulation mode toggle from frontend
+  socket.on("setSimulationMode", (enabled: boolean) => {
+    console.log(`[Socket] Simulation mode set to ${enabled} by ${socket.id}`);
+    orchestrator.setSimulationMode(enabled);
   });
 
   socket.on("disconnect", () => {

@@ -29,6 +29,10 @@ export class Orchestrator extends EventEmitter {
     totalProfit: 0,
   };
 
+  // Agent control state
+  private isRunning: boolean = false;
+  private simulationMode: boolean = true; // Default: simulation ON (safe for demo)
+
   // Event history buffers for new client catch-up
   private thoughtHistory: ThoughtEvent[] = [];
   private roastHistory: RoastEvent[] = [];
@@ -81,11 +85,10 @@ export class Orchestrator extends EventEmitter {
       this.emit("thought", thought);
     });
 
-    this.emitThought("All agents online. Starting scanner...", "success");
+    this.emitThought("All agents online. Waiting for start command...", "success");
 
-    // Start scanning
-    this.scanner.start();
-    this.setState(State.SCANNING);
+    // Don't auto-start — wait for frontend to send startAgent
+    this.setState(State.IDLE);
   }
 
   /**
@@ -175,6 +178,53 @@ export class Orchestrator extends EventEmitter {
       `Token selection updated: ${pairIds.length} pair(s) active`,
       "info"
     );
+  }
+
+  /**
+   * Start the scanner agent.
+   */
+  start(): void {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.scanner.start();
+    this.setState(State.SCANNING);
+    const mode = this.simulationMode ? "SIMULATION" : "LIVE";
+    this.emitThought(`🚀 Sentinad activated in ${mode} mode. Scanning for opportunities...`, "success");
+    this.emit("agentStatus", this.getAgentStatus());
+  }
+
+  /**
+   * Stop the scanner agent.
+   */
+  stop(): void {
+    if (!this.isRunning) return;
+    this.isRunning = false;
+    this.scanner.stop();
+    this.setState(State.IDLE);
+    this.emitThought("⏸️ Sentinad paused. Standing by.", "warning");
+    this.emit("agentStatus", this.getAgentStatus());
+  }
+
+  /**
+   * Toggle simulation mode.
+   * When ON, trades will be simulated (no real MON spent).
+   * When OFF, real transactions will be executed.
+   */
+  setSimulationMode(enabled: boolean): void {
+    this.simulationMode = enabled;
+    const mode = enabled ? "SIMULATION" : "LIVE";
+    this.emitThought(`Mode switched to ${mode}. ${enabled ? "No real funds will be used." : "⚠️ Real transactions enabled!"}`, enabled ? "info" : "warning");
+    this.emit("agentStatus", this.getAgentStatus());
+  }
+
+  /**
+   * Get current agent status.
+   */
+  getAgentStatus(): { isRunning: boolean; simulationMode: boolean } {
+    return {
+      isRunning: this.isRunning,
+      simulationMode: this.simulationMode,
+    };
   }
 
   /**

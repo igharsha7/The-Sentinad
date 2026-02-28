@@ -23,6 +23,11 @@ interface SentinadState {
   availableTokens: TokenPair[];
   activeTokenIds: string[];
   selectTokens: (pairIds: string[]) => void;
+  isRunning: boolean;
+  simulationMode: boolean;
+  startAgent: () => void;
+  stopAgent: () => void;
+  toggleSimulation: () => void;
 }
 
 const DEFAULT_STATS: Stats = {
@@ -42,6 +47,8 @@ export function useSocket(): SentinadState {
   const [state, setState] = useState<State>("IDLE" as State);
   const [availableTokens, setAvailableTokens] = useState<TokenPair[]>([]);
   const [activeTokenIds, setActiveTokenIds] = useState<string[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [simulationMode, setSimulationMode] = useState(true); // Default to simulation for safety
 
   useEffect(() => {
     const socket = io(SOCKET_URL, {
@@ -89,6 +96,11 @@ export function useSocket(): SentinadState {
       setActiveTokenIds(pairIds);
     });
 
+    socket.on("agentStatus", (status: { isRunning: boolean; simulationMode: boolean }) => {
+      setIsRunning(status.isRunning);
+      setSimulationMode(status.simulationMode);
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -97,6 +109,22 @@ export function useSocket(): SentinadState {
   const selectTokens = useCallback((pairIds: string[]) => {
     socketRef.current?.emit("selectTokens", pairIds);
   }, []);
+
+  const startAgent = useCallback(() => {
+    socketRef.current?.emit("startAgent");
+    setIsRunning(true);
+  }, []);
+
+  const stopAgent = useCallback(() => {
+    socketRef.current?.emit("stopAgent");
+    setIsRunning(false);
+  }, []);
+
+  const toggleSimulation = useCallback(() => {
+    const newMode = !simulationMode;
+    setSimulationMode(newMode);
+    socketRef.current?.emit("setSimulationMode", newMode);
+  }, [simulationMode]);
 
   return {
     connected,
@@ -108,5 +136,10 @@ export function useSocket(): SentinadState {
     availableTokens,
     activeTokenIds,
     selectTokens,
+    isRunning,
+    simulationMode,
+    startAgent,
+    stopAgent,
+    toggleSimulation,
   };
 }
