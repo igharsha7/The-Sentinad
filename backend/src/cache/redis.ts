@@ -6,7 +6,7 @@
 
 import { AuditResult } from "../types";
 
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes (short for demo variety)
 
 class AuditCache {
   private memoryCache: Map<string, AuditResult> = new Map();

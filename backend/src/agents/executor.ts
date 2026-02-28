@@ -2,10 +2,17 @@
 // THE SENTINAD — Executor Agent
 // ==========================================
 // "The Striker" — Executes flash arbitrage trades when the Vibe Agent
-// gives the green light. Simulated for the hackathon MVP.
+// gives the green light. Logs trades on-chain to Arbiter contract.
 
 import { EventEmitter } from "events";
+import { ethers } from "ethers";
 import { Opportunity, TradeResult, ThoughtEvent } from "../types";
+
+// Arbiter contract ABI (only the functions we need)
+const ARBITER_ABI = [
+  "function logArbitrage(address tokenA, address tokenB, string buyDex, string sellDex, uint256 profit) external",
+  "function getStats() external view returns (uint256, uint256)",
+];
 
 // Simulated trade amounts per pair
 const TRADE_AMOUNTS: Record<string, number> = {
@@ -18,14 +25,48 @@ const TRADE_AMOUNTS: Record<string, number> = {
 
 export class Executor extends EventEmitter {
   private tradeCount: number = 0;
+  private provider: ethers.JsonRpcProvider | null = null;
+  private wallet: ethers.Wallet | null = null;
+  private arbiterContract: ethers.Contract | null = null;
+  private isConfigured: boolean = false;
 
   constructor() {
     super();
+    this.initialize();
   }
 
   /**
-   * Execute a flash arbitrage trade (simulated).
-   * Only called when Vibe Agent has confirmed the contract is safe.
+   * Initialize ethers provider and wallet if env vars are set.
+   */
+  private initialize(): void {
+    const rpcUrl = process.env.MONAD_RPC_URL;
+    const privateKey = process.env.PRIVATE_KEY;
+    const arbiterAddress = process.env.ARBITER_ADDRESS;
+
+    if (!rpcUrl || !privateKey || !arbiterAddress) {
+      console.log("[Executor] Missing env vars — running in simulation mode");
+      console.log(`  - MONAD_RPC_URL: ${rpcUrl ? "✓" : "✗"}`);
+      console.log(`  - PRIVATE_KEY: ${privateKey ? "✓" : "✗"}`);
+      console.log(`  - ARBITER_ADDRESS: ${arbiterAddress ? "✓" : "✗"}`);
+      return;
+    }
+
+    try {
+      this.provider = new ethers.JsonRpcProvider(rpcUrl);
+      this.wallet = new ethers.Wallet(privateKey, this.provider);
+      this.arbiterContract = new ethers.Contract(arbiterAddress, ARBITER_ABI, this.wallet);
+      this.isConfigured = true;
+      console.log(`[Executor] Configured for on-chain execution`);
+      console.log(`  - Wallet: ${this.wallet.address}`);
+      console.log(`  - Arbiter: ${arbiterAddress}`);
+    } catch (error: any) {
+      console.error("[Executor] Failed to initialize:", error.message);
+    }
+  }
+
+  /**
+   * Execute a flash arbitrage trade.
+   * If Arbiter contract is configured, logs on-chain. Otherwise simulates.
    */
   async execute(opportunity: Opportunity): Promise<TradeResult> {
     this.emitThought(
@@ -33,22 +74,85 @@ export class Executor extends EventEmitter {
       "info"
     );
 
-    // Simulate execution delay (800-1500ms, realistic for Monad's speed)
-    const executionTimeMs = 800 + Math.floor(Math.random() * 700);
-    await this.delay(executionTimeMs);
-
-    // Calculate simulated profit
+    // Calculate profit
     const tradeAmount = TRADE_AMOUNTS[opportunity.pair.id] || 100;
     const profit = (opportunity.profitPct / 100) * tradeAmount;
+    const profitRounded = Math.round(profit * 10000) / 10000;
 
-    // Generate realistic-looking tx hash
-    const txHash = this.generateTxHash();
+    let txHash: string;
+    let executionTimeMs: number;
+
+    if (this.isConfigured && this.arbiterContract) {
+      // REAL ON-CHAIN EXECUTION
+      try {
+        const startTime = Date.now();
+        
+        // Convert profit to wei (assuming USDC with 6 decimals)
+        const profitWei = ethers.parseUnits(profitRounded.toFixed(6), 6);
+
+        this.emitThought(`📡 Sending transaction to Arbiter contract...`, "info");
+
+        const tx = await this.arbiterContract.logArbitrage(
+          opportunity.pair.tokenA.address,
+          opportunity.pair.tokenB.address,
+          opportunity.buyDex,
+          opportunity.sellDex,
+          profitWei,
+          {
+            gasLimit: 150000,
+          }
+        );
+
+        this.emitThought(`⏳ Waiting for confirmation... tx: ${tx.hash.slice(0, 14)}...`, "info");
+
+        const receipt = await tx.wait();
+        executionTimeMs = Date.now() - startTime;
+        txHash = receipt.hash;
+
+        this.emitThought(
+          `✅ ON-CHAIN SUCCESS: Logged ${profitRounded.toFixed(4)} ${opportunity.pair.tokenB.symbol} in ${executionTimeMs}ms | tx: ${txHash.slice(0, 14)}...`,
+          "success"
+        );
+      } catch (error: any) {
+        this.emitThought(`❌ On-chain tx failed: ${error.message}. Falling back to simulation.`, "warning");
+        // Fallback to simulation
+        return this.executeSimulated(opportunity, profitRounded);
+      }
+    } else {
+      // SIMULATED EXECUTION
+      return this.executeSimulated(opportunity, profitRounded);
+    }
 
     this.tradeCount++;
 
     const result: TradeResult = {
       txHash,
-      profit: Math.round(profit * 10000) / 10000, // Round to 4 decimals
+      profit: profitRounded,
+      executionTimeMs,
+      pair: opportunity.pair.name,
+      buyDex: opportunity.buyDex,
+      sellDex: opportunity.sellDex,
+      timestamp: Date.now(),
+    };
+
+    this.emit("trade", result);
+    return result;
+  }
+
+  /**
+   * Simulated execution (no on-chain activity).
+   */
+  private async executeSimulated(opportunity: Opportunity, profit: number): Promise<TradeResult> {
+    // Simulate execution delay (800-1500ms)
+    const executionTimeMs = 800 + Math.floor(Math.random() * 700);
+    await this.delay(executionTimeMs);
+
+    const txHash = this.generateTxHash();
+    this.tradeCount++;
+
+    const result: TradeResult = {
+      txHash,
+      profit,
       executionTimeMs,
       pair: opportunity.pair.name,
       buyDex: opportunity.buyDex,
@@ -57,12 +161,26 @@ export class Executor extends EventEmitter {
     };
 
     this.emitThought(
-      `✅ SUCCESS: Printed ${result.profit.toFixed(4)} ${opportunity.pair.tokenB.symbol} in ${executionTimeMs}ms | tx: ${txHash.slice(0, 14)}...`,
+      `✅ SIMULATED: Printed ${profit.toFixed(4)} ${opportunity.pair.tokenB.symbol} in ${executionTimeMs}ms | tx: ${txHash.slice(0, 14)}...`,
       "success"
     );
 
     this.emit("trade", result);
     return result;
+  }
+
+  /**
+   * Check if executor is configured for on-chain execution.
+   */
+  isOnChainConfigured(): boolean {
+    return this.isConfigured;
+  }
+
+  /**
+   * Get wallet address if configured.
+   */
+  getWalletAddress(): string | null {
+    return this.wallet?.address || null;
   }
 
   /**

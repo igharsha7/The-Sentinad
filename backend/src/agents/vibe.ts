@@ -154,15 +154,23 @@ export class VibeAgent extends EventEmitter {
     const tokenName = demoContract?.name || "Unknown Token";
 
     if (demoContract?.expectedVerdict === "scam") {
+      // More varied scam roasts with different styles
       const roasts = [
+        `Gmonad, this ${tokenName} contract is straight molandak — the devs are mid-curve scammers at best. They've got a classic rug pull setup, with unlimited minting, fee manipulation, and ETH/TOKEN draining capabilities all controlled by the owner. Definitely not purple-pilled, stay away from this chad!`,
         `This dev really said "trust me bro" and then wrote a sell-lock with a 25% hidden tax. Mid-curve molandak energy. The honeypot is so obvious, even a junior auditor could spot it from the parking lot.`,
-        `Imagine deploying a rug pull in 2026 and thinking nobody would check. Owner can mint unlimited tokens, set fees to 100%, and drain the LP -- the scam trifecta. Purple-pilled this is NOT. Gmonad goodbye to whoever apes in.`,
+        `Imagine deploying a rug pull in 2026 and thinking nobody would check. Dev can mint unlimited tokens, set fees to 100%, and drain the LP — the scam trifecta. Purple-pilled this is NOT. Gmonad goodbye to whoever apes in.`,
         `This contract has more red flags than a Pyongyang parade. Hidden blacklist, uncapped fees, owner-only withdrawals. Whoever wrote this has mid-curve energy and zero chog credentials.`,
+        `Gmonad, this ${tokenName} is a textbook honeypot. Users can buy all day but the sell function has a secret owner-only check. The dev is farming exit liquidity from moonboys. Not chog at all.`,
+        `This contract is so molandak it makes SafeMoon look legitimate. Owner can pause trading, blacklist addresses, AND steal the LP in one transaction. Dev has negative purple-pill energy.`,
+        `The audacity of this dev to deploy a rug pull with ZERO obfuscation. The _blocked mapping, the owner-only withdrawETH, the uncapped fees — it's like they WANT to get caught. Mid-curve scammer speedrun any%.`,
+        `This ${tokenName} contract is the equivalent of a Nigerian prince email but on-chain. If you ape into this, you deserve what's coming. Zero chog, maximum molandak.`,
+        `Dev really thought hiding a honeypot behind "SafeMoon" branding would work in 2026. The _router backdoor, the blocked addresses, the fake trading enable — textbook molandak operation.`,
+        `Gmonad NO! This contract has more backdoors than a poorly secured WordPress site. Owner mint, 100% fee capability, ETH drain function — the entire scam starter pack. Dev is farming your liquidity.`,
       ];
 
       const result: AuditResult = {
         safe: false,
-        confidence: 88 + Math.floor(Math.random() * 10),
+        confidence: 80 + Math.floor(Math.random() * 18),
         roast: roasts[Math.floor(Math.random() * roasts.length)],
         contractAddress,
         tokenName,
@@ -178,13 +186,16 @@ export class VibeAgent extends EventEmitter {
 
     // Safe contract
     const safeMessages = [
-      `Gmonad! ${tokenName} is fully purple-pilled. Clean transfer logic, standard ERC-20 patterns, no hidden fees or owner backdoors. Chog approved. ✨`,
+      `Gmonad! ${tokenName} is fully purple-pilled. Clean transfer logic, standard ERC-20 patterns, no hidden fees or owner backdoors. Chog approved.`,
       `${tokenName} passes the vibe check with flying colors. Standard implementation, no sus functions, ownership handled properly. Gmonad energy all the way.`,
+      `This ${tokenName} contract is clean as Monad's TPS. Standard OpenZeppelin imports, no weird modifiers, ownership is transparent. Fully chog.`,
+      `Gmonad vibes only! ${tokenName} has textbook ERC-20 implementation. No hidden fees, no blacklists, no owner shenanigans. Purple-pilled and trade-ready.`,
+      `${tokenName} is giving purple-pilled energy. Clean mint, standard transfers, no sus admin functions. The dev actually knows what they're doing. Chog status confirmed.`,
     ];
 
     const result: AuditResult = {
       safe: true,
-      confidence: 90 + Math.floor(Math.random() * 8),
+      confidence: 88 + Math.floor(Math.random() * 10),
       roast: safeMessages[Math.floor(Math.random() * safeMessages.length)],
       contractAddress,
       tokenName,

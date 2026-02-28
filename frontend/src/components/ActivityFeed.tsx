@@ -49,7 +49,7 @@ export default function ActivityFeed({ thoughts }: ActivityFeedProps) {
   const visibleThoughts = thoughts.slice(-100);
 
   return (
-    <div className="m-card flex flex-col h-full overflow-hidden">
+    <div className="m-card flex flex-col h-full max-h-[500px] overflow-hidden">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-monad animate-pulse-dot" />
@@ -58,7 +58,7 @@ export default function ActivityFeed({ thoughts }: ActivityFeedProps) {
         <span className="mono-label">{thoughts.length} events</span>
       </div>
 
-      <ScrollArea ref={scrollRef} className="flex-1">
+      <ScrollArea ref={scrollRef} className="flex-1 h-full">
         <div className="px-3 py-2 space-y-0.5">
           {visibleThoughts.length === 0 && (
             <div className="flex items-center justify-center h-[200px]">

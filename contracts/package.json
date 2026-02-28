@@ -1,13 +1,15 @@
 {
   "name": "contracts",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sentinad smart contracts for Monad Testnet",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.ts --network monadTestnet",
+    "test": "npx hardhat test"
   },
   "keywords": [],
   "author": "",

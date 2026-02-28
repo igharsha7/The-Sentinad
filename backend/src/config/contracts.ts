@@ -291,13 +291,18 @@ contract YieldMaxPro {
 
 /**
  * All sample contracts in rotation order for the demo.
- * Alternates between scam and safe for dramatic effect.
+ * More variety for interesting demo pacing.
  */
 export const DEMO_CONTRACTS: SampleContract[] = [
-  HONEYPOT_CONTRACT,     // First: scam → dramatic roast
-  SAFE_CONTRACT,         // Then: safe → successful trade
-  RUGPULL_CONTRACT,      // Another scam → another roast
-  SAFE_CONTRACT_2,       // Safe again → another trade
+  HONEYPOT_CONTRACT,     // scam → dramatic roast
+  SAFE_CONTRACT,         // safe → successful trade
+  RUGPULL_CONTRACT,      // scam → another roast
+  SAFE_CONTRACT_2,       // safe → another trade
+  // Additional scam with different address for more variety
+  { ...HONEYPOT_CONTRACT, address: "0xBaDc0de5BaDC0DE5bAdC0De5BaDc0dE5bAdC0De5", name: "YieldMaxPro" },
+  SAFE_CONTRACT,         // safe
+  { ...RUGPULL_CONTRACT, address: "0xDeF1cA7eDeF1CA7EDef1cA7eDeF1Ca7EDEF1ca7e", name: "ElonMoonShib" },
+  SAFE_CONTRACT_2,       // safe
 ];
 
 /**

@@ -731,8 +731,29 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-32 px-8 border-t border-border">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative py-24 px-8 border-t border-border overflow-hidden">
+        {/* Lightning Bolt Doodle Pattern */}
+        <div className="absolute inset-0" aria-hidden="true">
+          <svg className="w-full h-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="lightning-pattern" x="0" y="0" width="140" height="140" patternUnits="userSpaceOnUse">
+                {/* Lightning bolt 1 - purple */}
+                <path d="M35 8 L22 38 L32 38 L19 62 L42 32 L32 32 Z" fill="#a78bfa" fillOpacity="0.6"/>
+                {/* Lightning bolt 2 - white */}
+                <path d="M100 55 L87 85 L97 85 L84 109 L107 79 L97 79 Z" fill="#ffffff" fillOpacity="0.4"/>
+                {/* Lightning bolt 3 - purple smaller */}
+                <path d="M70 20 L62 38 L68 38 L60 52 L75 35 L69 35 Z" fill="#8b5cf6" fillOpacity="0.5"/>
+                {/* Lightning bolt 4 - white */}
+                <path d="M15 90 L5 110 L12 110 L2 126 L20 106 L13 106 Z" fill="#ffffff" fillOpacity="0.3"/>
+                {/* Lightning bolt 5 - purple accent */}
+                <path d="M115 15 L108 30 L113 30 L106 42 L118 28 L113 28 Z" fill="#c4b5fd" fillOpacity="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#lightning-pattern)"/>
+          </svg>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -750,19 +771,18 @@ export default function LandingPage() {
               {/* Background gradient */}
               <div className="absolute inset-0 bg-gradient-to-br from-monad/20 via-transparent to-monad-dim/10" />
 
-              <div className="relative p-16 bg-surface/80 rounded-3xl text-center">
+              <div className="relative py-12 px-8 sm:px-16 bg-surface/80 rounded-3xl text-center">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-monad/10 border border-monad/30 mb-6">
                   <span className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
                   <span className="text-xs font-mono text-monad">READY</span>
                 </div>
 
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display italic text-foreground mb-6">
+                <h2 className="text-4xl md:text-5xl font-display italic text-foreground mb-4">
                   Ready to see it
-                  <br />
-                  <span className="text-monad">in action?</span>
+                  <span className="text-monad"> in action?</span>
                 </h2>
 
-                <p className="text-muted text-lg mb-10 max-w-lg mx-auto">
+                <p className="text-muted text-base mb-8 max-w-md mx-auto">
                   Watch The Sentinad scan, audit, and execute in real-time.
                   Built for Monad Blitz Hyderabad 2026.
                 </p>
@@ -771,7 +791,7 @@ export default function LandingPage() {
                   <Link href="/dashboard">
                     <Button
                       size="lg"
-                      className="bg-monad hover:bg-monad-bright text-background font-semibold px-12 h-14 text-base"
+                      className="bg-monad hover:bg-monad-bright text-background font-semibold px-10 h-12 text-base"
                     >
                       Launch Dashboard
                       <ExternalLink className="w-4 h-4 ml-2" />
@@ -784,7 +804,7 @@ export default function LandingPage() {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="border-border hover:border-monad/30 h-14 px-8"
+                      className="border-border hover:border-monad/30 h-12 px-6"
                     >
                       View on GitHub
                       <ArrowRight className="w-4 h-4 ml-2" />

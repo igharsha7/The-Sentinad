@@ -154,16 +154,24 @@ export class Orchestrator extends EventEmitter {
       // Brief pause before returning to scan
       await this.delay(2000);
 
-      // Back to scanning
-      this.setState(State.IDLE);
-      this.scanner.start();
-      this.setState(State.SCANNING);
+      // Back to scanning (only if user hasn't stopped)
+      if (this.isRunning) {
+        this.setState(State.IDLE);
+        this.scanner.start();
+        this.setState(State.SCANNING);
+      } else {
+        this.setState(State.IDLE);
+      }
     } catch (error: any) {
       console.error("[Orchestrator] Pipeline error:", error);
       this.emitThought(`❌ Pipeline error: ${error.message}`, "error");
-      this.setState(State.IDLE);
-      this.scanner.start();
-      this.setState(State.SCANNING);
+      if (this.isRunning) {
+        this.setState(State.IDLE);
+        this.scanner.start();
+        this.setState(State.SCANNING);
+      } else {
+        this.setState(State.IDLE);
+      }
     } finally {
       this.processing = false;
     }
@@ -197,7 +205,6 @@ export class Orchestrator extends EventEmitter {
    * Stop the scanner agent.
    */
   stop(): void {
-    if (!this.isRunning) return;
     this.isRunning = false;
     this.scanner.stop();
     this.setState(State.IDLE);

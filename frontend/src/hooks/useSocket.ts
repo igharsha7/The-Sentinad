@@ -116,8 +116,11 @@ export function useSocket(): SentinadState {
   }, []);
 
   const stopAgent = useCallback(() => {
-    socketRef.current?.emit("stopAgent");
-    setIsRunning(false);
+    if (socketRef.current) {
+      socketRef.current.emit("stopAgent");
+      // Optimistically update UI, backend will confirm
+      setIsRunning(false);
+    }
   }, []);
 
   const toggleSimulation = useCallback(() => {

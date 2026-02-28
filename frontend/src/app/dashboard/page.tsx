@@ -92,13 +92,22 @@ export default function Dashboard() {
             <Button
               size="sm"
               onClick={isRunning ? stopAgent : startAgent}
+              disabled={!isConnected && !isRunning}
+              title={!isConnected ? "Connect wallet first" : undefined}
               className={`min-w-[100px] ${
-                isRunning
-                  ? "bg-accent-red hover:bg-accent-red/80"
-                  : "bg-accent-green hover:bg-accent-green/80"
-              } text-background font-medium`}
+                !isConnected && !isRunning
+                  ? "bg-muted/20 text-muted cursor-not-allowed"
+                  : isRunning
+                  ? "bg-accent-red hover:bg-accent-red/80 text-background font-medium"
+                  : "bg-accent-green hover:bg-accent-green/80 text-background font-medium"
+              }`}
             >
-              {isRunning ? (
+              {!isConnected && !isRunning ? (
+                <>
+                  <Wallet className="w-3.5 h-3.5 mr-1.5" />
+                  Connect First
+                </>
+              ) : isRunning ? (
                 <>
                   <Square className="w-3.5 h-3.5 mr-1.5" />
                   Stop
