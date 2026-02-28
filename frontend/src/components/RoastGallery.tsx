@@ -30,7 +30,7 @@ export default function RoastGallery({ roasts }: RoastGalleryProps) {
         <span className="mono-label">{roasts.length} blocked</span>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 max-h-[448px]">
         <div className="p-2.5 space-y-2">
         {displayRoasts.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-2">

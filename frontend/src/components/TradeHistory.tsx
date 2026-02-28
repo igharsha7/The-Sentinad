@@ -31,7 +31,7 @@ export default function TradeHistory({ trades }: TradeHistoryProps) {
         <span className="mono-label">{trades.length} total</span>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 max-h-[448px]">
         {displayTrades.length === 0 && (
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-2 text-[12px]">
