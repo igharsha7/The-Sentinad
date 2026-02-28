@@ -52,7 +52,12 @@ const server = http.createServer((req, res) => {
 // ---- Socket.io ----
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
   cors: {
-    origin: [FRONTEND_URL, "http://localhost:3000", "http://localhost:3001"],
+    origin: [
+      FRONTEND_URL, 
+      "http://localhost:3000", 
+      "http://localhost:3001",
+      /\.vercel\.app$/,  // Allow all Vercel preview deployments
+    ],
     methods: ["GET", "POST"],
   },
 });
