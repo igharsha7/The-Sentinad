@@ -9,35 +9,27 @@ interface StatsPanelProps {
 const STAT_CARDS = [
   {
     key: "totalScans" as const,
-    label: "SCANS RUN",
+    label: "Scans",
     format: (v: number) => v.toLocaleString(),
     accent: "text-foreground",
-    glow: "",
-    border: "border-border hover:border-monad/30",
   },
   {
     key: "scamsDodged" as const,
-    label: "SCAMS DODGED",
+    label: "Scams Blocked",
     format: (v: number) => v.toLocaleString(),
     accent: "text-accent-red",
-    glow: "glow-red",
-    border: "border-border hover:border-accent-red/30",
   },
   {
     key: "tradesExecuted" as const,
-    label: "TRADES EXECUTED",
+    label: "Trades",
     format: (v: number) => v.toLocaleString(),
     accent: "text-accent-cyan",
-    glow: "glow-cyan",
-    border: "border-border hover:border-accent-cyan/30",
   },
   {
     key: "totalProfit" as const,
-    label: "PROFIT (USDC)",
+    label: "Profit",
     format: (v: number) => `$${v.toFixed(2)}`,
     accent: "text-accent-green",
-    glow: "glow-green",
-    border: "border-border hover:border-accent-green/30",
   },
 ];
 
@@ -50,15 +42,12 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
         return (
           <div
             key={card.key}
-            className={`m-card p-5 flex flex-col gap-1.5 transition-all duration-300 ${card.border}`}
+            className="m-card p-4 md:p-5"
           >
-            {/* Big number on top — Orbitron futuristic with glow */}
-            <span className={`stat-big text-3xl ${card.accent} ${card.glow}`}>
+            <span className="text-[13px] text-muted">{card.label}</span>
+            <div className={`stat-big text-2xl md:text-3xl mt-1.5 ${card.accent}`}>
               {card.format(value)}
-            </span>
-
-            {/* Small mono label below */}
-            <span className="mono-label">{card.label}</span>
+            </div>
           </div>
         );
       })}

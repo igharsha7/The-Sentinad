@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ThoughtEvent, ThoughtType } from "@/types";
 
 interface ActivityFeedProps {
@@ -16,7 +17,7 @@ const TYPE_COLORS: Record<ThoughtType, string> = {
 };
 
 const AGENT_COLORS: Record<string, string> = {
-  Scanner: "text-monad-bright",
+  Scanner: "text-monad",
   Vibe: "text-accent-amber",
   Executor: "text-accent-cyan",
   System: "text-muted",
@@ -32,67 +33,66 @@ function formatTime(timestamp: number): string {
 }
 
 export default function ActivityFeed({ thoughts }: ActivityFeedProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    // Auto-scroll to bottom when new thoughts arrive
+    if (scrollRef.current) {
+      const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
     }
   }, [thoughts]);
 
+  // Limit to last 100 thoughts to prevent memory issues
+  const visibleThoughts = thoughts.slice(-100);
+
   return (
     <div className="m-card flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="px-5 py-3 border-b border-border flex items-center justify-between shrink-0">
+      <div className="px-4 py-3 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-monad animate-pulse-subtle" />
-          <span className="mono-label text-foreground glow-purple">
-            [AGENT ACTIVITY]
-          </span>
+          <span className="h-2 w-2 rounded-full bg-monad animate-pulse-dot" />
+          <span className="text-[13px] font-semibold text-foreground">Activity</span>
         </div>
-        <span className="mono-label">{thoughts.length} EVENTS</span>
+        <span className="mono-label">{thoughts.length} events</span>
       </div>
 
-      {/* Feed */}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-y-auto px-4 py-2 space-y-px font-mono text-[12px]"
-      >
-        {thoughts.length === 0 && (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-muted text-sm font-mono">
-              Waiting for agent activity...
-            </p>
-          </div>
-        )}
-
-        {thoughts.map((thought, i) => {
-          const color = TYPE_COLORS[thought.type] || TYPE_COLORS.info;
-          const agentColor = AGENT_COLORS[thought.agent] || "text-muted";
-
-          return (
-            <div
-              key={`${thought.timestamp}-${i}`}
-              className="feed-entry flex items-start gap-2 py-1.5 group hover:bg-surface-2/30 px-1 rounded"
-            >
-              {/* Timestamp */}
-              <span className="text-muted-2 shrink-0 text-[10px] mt-px">
-                {formatTime(thought.timestamp)}
-              </span>
-
-              {/* Agent tag */}
-              <span className={`shrink-0 text-[10px] font-bold uppercase ${agentColor}`}>
-                [{thought.agent}]
-              </span>
-
-              {/* Message */}
-              <span className={`${color} break-words leading-relaxed`}>
-                {thought.message}
-              </span>
+      <ScrollArea ref={scrollRef} className="flex-1">
+        <div className="px-3 py-2 space-y-0.5">
+          {visibleThoughts.length === 0 && (
+            <div className="flex items-center justify-center h-[200px]">
+              <p className="text-muted-2 text-[13px]">
+                Waiting for activity...
+              </p>
             </div>
-          );
-        })}
-      </div>
+          )}
+
+          {visibleThoughts.map((thought, i) => {
+            const color = TYPE_COLORS[thought.type] || TYPE_COLORS.info;
+            const agentColor = AGENT_COLORS[thought.agent] || "text-muted";
+
+            return (
+              <div
+                key={`${thought.timestamp}-${i}`}
+                className="feed-entry flex items-start gap-2.5 py-2 px-2 rounded-md hover:bg-surface-2 transition-colors"
+              >
+                <span className="text-muted-2 shrink-0 text-[10px] mt-0.5 font-mono">
+                  {formatTime(thought.timestamp)}
+                </span>
+
+                <span className={`shrink-0 text-[10px] font-semibold ${agentColor}`}>
+                  {thought.agent}
+                </span>
+
+                <span className={`${color} break-words leading-relaxed text-[12px]`}>
+                  {thought.message}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
     </div>
   );
 }

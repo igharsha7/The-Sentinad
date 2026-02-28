@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "The Sentinad — AI Vibe Check Arbitrage on Monad",
+  title: "The Sentinad — AI Arbitrage Intelligence",
   description:
-    "AI-powered arbitrage agent that scans DEX prices and audits smart contracts with LLM-based security analysis on Monad.",
+    "AI-powered arbitrage agent with smart contract security analysis. Built for Monad.",
+  openGraph: {
+    title: "The Sentinad",
+    description: "Think-Before-Link Arbitrage on Monad",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -14,15 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="noise scanlines antialiased">
-        {/* Subtle background orbs */}
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-
-        {/* Grid texture */}
-        <div className="fixed inset-0 bg-grid pointer-events-none z-0" />
-
-        <div className="relative z-10 min-h-screen">{children}</div>
+      <body className="antialiased min-h-screen bg-background">
+        <TooltipProvider delayDuration={200}>
+          {children}
+        </TooltipProvider>
       </body>
     </html>
   );

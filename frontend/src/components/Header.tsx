@@ -10,63 +10,48 @@ interface HeaderProps {
 
 export default function Header({ connected, state }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
-      {/* Purple accent bar */}
-      <div className="monad-accent-bar" />
-
-      <div className="mx-auto max-w-[1600px] px-6 h-14 flex items-center justify-between">
-        {/* Left — Logo + Title */}
-        <div className="flex items-center gap-4">
-          {/* Geometric icon */}
-          <div className="relative h-8 w-8 rounded-lg border border-monad/40 flex items-center justify-center bg-monad/5">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/70 backdrop-blur-xl">
+      <div className="mx-auto max-w-[1200px] px-6 md:px-8 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-monad/15 border border-monad/20">
             <svg
               viewBox="0 0 24 24"
               fill="none"
-              className="h-4 w-4"
+              className="h-4 w-4 text-monad"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" className="text-monad" />
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
           </div>
 
-          <div className="flex items-center gap-3">
-            <h1 className="font-display font-bold text-sm tracking-widest text-foreground uppercase glow-purple">
-              THE SENTINAD
-            </h1>
-            <span className="hidden sm:inline-block h-4 w-px bg-border-bright" />
-            <span className="hidden sm:inline-block mono-label">
-              AI Vibe Check Arbitrage
-            </span>
-          </div>
+          <span className="font-semibold text-[15px] tracking-tight text-foreground">
+            Sentinad
+          </span>
         </div>
 
-        {/* Right — Status + Connection */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <StatusBadge state={state} />
 
-          <div className="h-4 w-px bg-border-bright" />
-
-          {/* Connection indicator */}
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-[7px] w-[7px]">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-surface border border-border">
+            <span className="relative flex h-2 w-2">
               {connected && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-40" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-50" />
               )}
               <span
-                className={`relative inline-flex rounded-full h-[7px] w-[7px] ${
+                className={`relative inline-flex rounded-full h-2 w-2 ${
                   connected ? "bg-accent-green" : "bg-accent-red"
                 }`}
               />
             </span>
             <span
-              className={`mono-label ${
+              className={`text-[12px] font-medium ${
                 connected ? "text-accent-green" : "text-accent-red"
               }`}
             >
-              {connected ? "LIVE" : "OFFLINE"}
+              {connected ? "Live" : "Offline"}
             </span>
           </div>
         </div>
